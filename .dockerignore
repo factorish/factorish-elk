@@ -1,0 +1,7 @@
+.git
+.gitignore
+Vagrantfile
+config.rb
+user-data.erb
+.vagrant
+registry

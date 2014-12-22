@@ -1,0 +1,10 @@
+[template]
+src   = "output_elasticsearch.conf"
+dest  = "/opt/logstash/conf.d/output_elasticsearch.conf"
+owner = "root"
+group = "root"
+mode  = "0755"
+keys = [
+  "/services/logstash/config",
+]
+check_cmd = "/app/bin/check {{ .src }}"

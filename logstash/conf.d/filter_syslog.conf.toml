@@ -1,0 +1,9 @@
+[template]
+src   = "filter_syslog.conf"
+dest  = "/opt/logstash/conf.d/filter_syslog.conf"
+owner = "root"
+group = "root"
+mode  = "0755"
+keys = [
+]
+check_cmd = "/app/bin/check {{ .src }}"

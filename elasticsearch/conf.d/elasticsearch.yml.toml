@@ -1,0 +1,11 @@
+[template]
+src   = "elasticsearch.yml"
+dest  = "/opt/elasticsearch/config/elasticsearch.yml"
+owner = "root"
+group = "root"
+mode  = "0755"
+keys = [
+  "/services/elasticsearch/config",
+  "/services/elasticsearch/hosts",
+]
+check_cmd = "/app/bin/check {{ .src }}"

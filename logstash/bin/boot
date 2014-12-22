@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# This script is designed to be run inside the container
+#
+
+# fail hard and fast even on pipelines
+set -eo pipefail
+
+# set debug based on envvar
+[[ $DEBUG ]] && set -x
+
+DIR=$(dirname $0)
+
+# functions
+. $DIR/functions
+
+
+# Environment variables that should be passed in via `docker run` command.
+
+# FRAMEWORK
+export APP_NAME=${APP_NAME:-"logstash"}
+export PUBLISH=${PUBLISH:-9200}
+export PORT=${PORT:-9200}
+export PROTO=${PROTO:-tcp}
+
+export ETCD_HOST=${ETCD_HOST:-$HOST}
+export ETCD_PORT=${ETCD_PORT:-4001}
+export ETCD="$ETCD_HOST:$ETCD_PORT"
+export ETCD_PATH=${ETCD_PATH:-"/services/logstash"}
+export ETCD_TTL=${ETCD_TTL:-10}
+export ETCD_OPTIONS="--no-sync -C $ETCD"
+
+# App Settings
+export CLUSTER_NAME=${CLUSTER_NAME:-"elasticsearch"}
+export LOGSTASH_HOME=/opt/logstash
+export GC_OPTS='-XX:+UseParallelOldGC'
+export JAVA_OPTS="-server -Xms256M -Xmx256M"
+
+[[ -z ${ETCD_HOST} ]] && echo HOST or ETCD_HOST must be set && exit 1
+
+if [[ -z $HOST ]]; then
+  echo '==> $HOST not set.  booting ${APP_NAME} without etcd support.'
+  # COMMAND TO RUN YOUR APP GOES HERE
+  /opt/logstash/bin/logstash -f /opt/logstash/conf.d
+  echo "==> ${APP_NAME} running..."
+  exit $?
+fi
+
+configure_etcd
+
+etcd_make_directory config
+etcd_make_directory hosts
+
+etcd_set_default config/clustername ${CLUSTER_NAME}
+
+
+# wait for confd to run once and install initial templates
+until confd -onetime -node $ETCD -config-file /app/confd.toml -confdir /app; do
+  echo "echo ==> ${APP_NAME}: waiting for confd to write initial templates..."
+  sleep $(($ETCD_TTL/2))  # sleep for half the TTL
+done
+
+echo Starting ${APP_NAME}
+
+# smart shutdown on SIGINT and SIGTERM
+trap on_exit INT TERM
+
+. $DIR/confd &
+
+/opt/logstash/bin/logstash -f /opt/logstash/conf.d
