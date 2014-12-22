@@ -5,6 +5,8 @@ This project is a attempt to showcase using the CoreOS suite of tools ( CoreOS, 
 
 I have borrowed heavily from the fine folks from the [deis](https://github.com/deis/deis) project which uses similar concepts to set and configure up its infrastructure.
 
+![Kibana Screenshot](docs/kibana.png)
+
 Framework
 =========
 
@@ -122,7 +124,6 @@ $ cat /var/log/syslog | nc localhost 5014
 ```
 
 By this time you have a three node elasticsearch cluster, logstash listening on each host on syslog ports and kibana running on each host.   The final line pushes syslog from your local machine into logstash and through to elasticsearch.  You can now use kibana to browse through that data.
-
 
 There are also a number of functions loaded in via via the user-data script to make it easier to mess around with things.
 
