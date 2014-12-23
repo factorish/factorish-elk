@@ -22,6 +22,7 @@ RUN \
   lsb-release \
   locales \
   socat \
+  supervisor \
   --no-install-recommends
 
 # download latest stable etcdctl

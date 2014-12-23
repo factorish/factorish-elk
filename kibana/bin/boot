@@ -62,6 +62,6 @@ echo Starting ${APP_NAME}
 # smart shutdown on SIGINT and SIGTERM
 trap on_exit INT TERM
 
-. $DIR/confd &
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
-/opt/kibana/bin/kibana
+exit 1

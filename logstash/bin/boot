@@ -65,6 +65,6 @@ echo Starting ${APP_NAME}
 # smart shutdown on SIGINT and SIGTERM
 trap on_exit INT TERM
 
-. $DIR/confd &
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
-/opt/logstash/bin/logstash -f /opt/logstash/conf.d
+exit 1

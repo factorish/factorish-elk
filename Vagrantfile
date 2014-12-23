@@ -91,51 +91,52 @@ Vagrant.configure('2') do |config|
           if [[ -e /home/core/share/registry/registry.tgz ]]; then
             docker images registry | grep registry > /dev/null || docker load < /home/core/share/registry/registry.tgz
           else
-            docker pull registry
+            docker pull registry > /dev/null
+            docker save registry > /home/core/share/registry/registry.tgz
           fi
           curl -s 10.0.2.2:5000 || docker run -d -p 5000:5000 -e GUNICORN_OPTS=[--preload] -e search_backend= -v /home/core/share/registry:/tmp/registry registry
           sleep 10
           echo Building base java image
-          docker pull 10.0.2.2:5000/paulczar/java_confd || \
+          docker pull 10.0.2.2:5000/paulczar/java_confd > /dev/null || \
             docker build -t 10.0.2.2:5000/paulczar/java_confd /home/core/share && \
             docker push 10.0.2.2:5000/paulczar/java_confd && \
             docker tag 10.0.2.2:5000/paulczar/java_confd paulczar/java_confd
           echo Building elasticsearch image
-          docker pull 10.0.2.2:5000/paulczar/elasticsearch_confd || \
+          docker pull 10.0.2.2:5000/paulczar/elasticsearch_confd > /dev/null || \
             docker build -t 10.0.2.2:5000/paulczar/elasticsearch_confd /home/core/share/elasticsearch  && \
-            docker push 10.0.2.2:5000/paulczar/elasticsearch_confd && \
+            docker push 10.0.2.2:5000/paulczar/elasticsearch_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/elasticsearch_confd paulczar/elasticsearch_confd
           echo Building Logstash image
-          docker pull 10.0.2.2:5000/paulczar/logstash_confd || \
+          docker pull 10.0.2.2:5000/paulczar/logstash_confd > /dev/null || \
             docker build -t 10.0.2.2:5000/paulczar/logstash_confd /home/core/share/logstash  && \
-            docker push 10.0.2.2:5000/paulczar/logstash_confd && \
+            docker push 10.0.2.2:5000/paulczar/logstash_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/logstash_confd paulczar/logstash_confd
           echo Building Kibana image
-          docker pull 10.0.2.2:5000/paulczar/kibana_confd || \
+          docker pull 10.0.2.2:5000/paulczar/kibana_confd > /dev/null || \
             docker build -t 10.0.2.2:5000/paulczar/kibana_confd /home/core/share/kibana  && \
-            docker push 10.0.2.2:5000/paulczar/kibana_confd && \
+            docker push 10.0.2.2:5000/paulczar/kibana_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/kibana_confd paulczar/kibana_confd
           echo Grab logspout
-          docker pull 10.0.2.2:5000/progrium/logspout || \
+          docker pull 10.0.2.2:5000/progrium/logspout > /dev/null || \
             docker pull progrium/logspout
           docker tag 10.0.2.2:5000/progrium/logspout progrium/logspout || \
             docker tag progrium/logspout 10.0.2.2:5000/progrium/logspout
-          docker push 10.0.2.2:5000/progrium/logspout
+          docker push 10.0.2.2:5000/progrium/logspout > /dev/null
         EOF
       else
         c.vm.provision :shell, inline: <<-EOF
           echo fetching images.  This may take some time.
           echo - java ...
-          docker pull 10.0.2.2:5000/paulczar/java_confd && \
+          docker pull 10.0.2.2:5000/paulczar/java_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/java_confd paulczar/java_confd
           echo - elasticsearch ...
-          docker pull 10.0.2.2:5000/paulczar/elasticsearch_confd && \
+          docker pull 10.0.2.2:5000/paulczar/elasticsearch_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/elasticsearch_confd paulczar/elasticsearch_confd
           echo - logstash ...
-          docker pull 10.0.2.2:5000/paulczar/logstash_confd && \
+          docker pull 10.0.2.2:5000/paulczar/logstash_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/logstash_confd paulczar/logstash_confd
           echo - kibana ...
-          docker pull 10.0.2.2:5000/paulczar/kibana_confd && \
+          docker pull 10.0.2.2:5000/paulczar/kibana_confd > /dev/null && \
             docker tag 10.0.2.2:5000/paulczar/kibana_confd paulczar/kibana_confd
         EOF
       end

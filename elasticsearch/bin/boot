@@ -63,6 +63,6 @@ echo Starting ${APP_NAME}
 # smart shutdown on SIGINT and SIGTERM
 trap on_exit INT TERM
 
-. $DIR/confd &
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
-/opt/elasticsearch-1.4.2/bin/elasticsearch -p /app/elasticsearch.pid
+exit 1
