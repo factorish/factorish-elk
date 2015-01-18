@@ -14,7 +14,7 @@ To spin up a three node system each running the whole ELK stack simply run:
 $ vagrant up
 ```
 
-See `Testing / Development` for more details.
+See the [vagrant](https://github.com/factorish/factorish-elk#vagrant) section in [Testing / Development](https://github.com/factorish/factorish-elk#testing--development) for more details.
 
 Framework
 =========
