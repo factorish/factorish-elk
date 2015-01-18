@@ -1,5 +1,5 @@
-[confd]
 confdir  = "/app"
 interval = 5
-prefix   = "/"
-quiet    = true
+prefix   = "/services"
+quiet    = false
+watch    = true

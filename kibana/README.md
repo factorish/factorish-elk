@@ -1,4 +1,4 @@
 Kibana Confd
 ============
 
-see [ELK Confd](https://github.com/paulczar/docker-elk_confd/blob/master/README.md}
+see [ELK Confd](https://github.com/factorish/factorish-elk/blob/master/README.md}

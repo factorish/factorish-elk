@@ -29,7 +29,7 @@
 # Cluster name identifies your cluster for auto-discovery. If you're running
 # multiple clusters on the same network, make sure you're using unique names.
 #
-cluster.name: {{getv "/services/elasticsearch/config/clustername"}}
+cluster.name: {{ getenv "CLUSTER_NAME" }}
 
 
 #################################### Node #####################################
@@ -324,7 +324,7 @@ discovery.zen.ping.multicast.enabled: false
 #    to perform discovery when new nodes (master or data) are started:
 #
 
-discovery.zen.ping.unicast.hosts: [ {{range $index, $server := ls "/services/elasticsearch/hosts"}}{{if $index}}, {{end}}"{{$server}}"{{end}} ]
+discovery.zen.ping.unicast.hosts: [ {{range $index, $server := getvs "/elasticsearch_transport/*"}}{{if $index}}, {{end}}"{{ $server }}"{{end}} ]
 
 # EC2 discovery allows to use AWS EC2 API in order to perform discovery.
 #

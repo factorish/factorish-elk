@@ -1,21 +1,38 @@
+Factorish Elk
+=============
+
 Elasticsearch/Logstash/Kibana on Docker
-=======================================
+---------------------------------------
 
-This project is a attempt to showcase using the CoreOS suite of tools ( CoreOS, etcd, fleet, confd ) to build and deploy an ELK (Elasticsearch, Logstash, Kibana) cluster.
-
-I have borrowed heavily from the fine folks from the [deis](https://github.com/deis/deis) project which uses similar concepts to set and configure up its infrastructure.
+This project is a attempt to showcase using [Factorish](http://github.com/factorish/factorish) and the CoreOS suite of tools ( CoreOS, etcd, fleet, confd ) to build and deploy a self-configuring/clustering ELK (Elasticsearch, Logstash, Kibana) cluster.
 
 ![Kibana Screenshot](docs/kibana.png)
+
+To spin up a three node system each running the whole ELK stack simply run:
+
+```
+$ vagrant up
+```
+
+See `Testing / Development` for more details.
 
 Framework
 =========
 
-There is a base `Dockerfile` for building a `java` image with `confd` and `etcd` installed.
-
-Each ELK system has a directory which containera `Dockerfile` that builds upon the `java` image to install the system itself.   It also contains a startup script and the templates requires to configure itself.
+Each ELK system has a directory which contains a `Dockerfile` that builds upon the [Factorish Java](https://registry.hub.docker.com/u/factorish/factorish-java/) image to install the apps itself.   It also contains a startup script and the templates requires to configure itself.
 
 Components
 ==========
+
+Registrator
+-----------
+
+[Registrator](https://github.com/progrium/registrator)
+
+Logspout
+--------
+
+[Logspout](https://github.com/progrium/logspout)
 
 Elasticsearch
 -------------
@@ -27,34 +44,32 @@ Most settings are still defaults right now, and memory is restricted to 512mb fo
 `confd` will create an `elasticsearch.yml` config file which sets the cluster name and disabled multicast discovey.  It uses unicast discovery and uses details from `services/elasticsearch/host` to figure out who to talk to.
 
 ```
-docker run  -d  -p 9200:9200 -p 9300:9300 -e PUBLISH=9200 \
-  -e HOST=<ETCD_HOST> --name elasticsearch paulczar/elasticsearch_confd`
+$ docker run  -d -e HOST=$COREOS_PRIVATE_IPV4 -p 9200:9200 \
+  -e SERVICE_9200_NAME=elasticsearch_api -p 9300:9300 \
+  -e SERVICE_9300_NAME=elasticsearch_transport \
+  --name elasticsearch factorish/elasticsearch
 ```
 
 Logstash
 --------
 
-Logstash is fairly static right now.   it will listen on syslog port 514 ( tcp and udp ) and attempt to filter standard syslog lines with grok filters.    It currently outputs to elasticsearch via http to the elasticsearch node onthe current host.   It will  not be difficult to provide it a list from the `/services/elasticsearch/hosts` etcd namespace in the future.
+Logstash  will listen on syslog port 514 ( tcp and udp ) and attempt to filter standard syslog lines with grok filters.    It outputs to elasticsearch via the `http` protocol and picks the first ES server it finds in `etcd`.
 
 ```
-docker run  -d  -p 514:514 -p 514:514/udp -e PUBLISH=514 \
-          -e HOST=<ETCD_HOST> --name logstash paulczar/logstash_confd
+$ docker run  -d -p 514:514/udp -e SERVICE_514_NAME=logstash_syslog \
+  -e HOST=$COREOS_PRIVATE_IPV4 --name logstash factorish/logstash
 ```
 
 Kibana
 ------
 
-Kibana will listen on port 5601 and talk to the elasticsearch node running on the same host.  Like logstash it will not be hard to modify it to take information from etcd for this.
+Kibana will listen on port 5601 and picks the first ES server it finds in `etcd`.
 
 ```
-docker run  -d  -p 514:514 -p 514:514/udp -e PUBLISH=514 \
-          -e HOST=<ETCD_HOST> --name kibana paulczar/kibana_confd
+$ docker run  -d -p 5601:5601 -e SERVICE_514_NAME=kibana_http \
+  -e HOST=$COREOS_PRIVATE_IPV4 --name kibana factorish/kibana
 ```
 
-Logspout
---------
-
-Finally each host will run logspout to collect all of the logs coming from the `ELK` containers and push them into `Elasticsearch` so that they are viewable in `Kibana`.
 
 
 Testing / Development
@@ -127,14 +142,15 @@ By this time you have a three node elasticsearch cluster, logstash listening on 
 
 There are also a number of functions loaded in via via the user-data script to make it easier to mess around with things.
 
-* `start_[elasticsearch|logstash|kibana]` - start the chosen container
-* `stop_[elasticsearch|logstash|kibana]` - stop the chosen container
+* `run_[elasticsearch|logstash|kibana]` - start the chosen container
+* `kill_[elasticsearch|logstash|kibana]` - stop the chosen container
+* `build_[elasticsearch|logstash|kibana]` - stop the chosen container
 * `[elasticsearch|logstash|kibana]` - get a bash prompt on the chosen container
 * `cleanup` - remove the etcd keys used by ELK.
 
 
 Author(s)
-======
+=========
 
 Paul Czarkowski (paul@paulcz.net)
 

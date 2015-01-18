@@ -16,48 +16,29 @@ write_files:
   - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
     content: |
         [Service]
-        Environment=DOCKER_OPTS='--insecure-registry="10.0.2.2:5000"'
+        Environment=DOCKER_OPTS='--insecure-registry="127.0.0.1:5000"'
   - path: /etc/motd
-    content: "ELK Demo\n"
+    content: "Example Demo\n"
   - path: /etc/profile.d/functions.sh
     permissions: '0755'
     content: |
-      function start_elasticsearch() {
+<% @applications.each do |app| %>
+      function run_<%= app[:name] %>() {
         eval `cat /etc/environment | sed "s/^/export /"`
-        /usr/bin/docker run  -d  -p 9200:9200 -p 9300:9300 -e PUBLISH=9200 \
-          -e HOST=$COREOS_PRIVATE_IPV4 --name elasticsearch paulczar/elasticsearch_confd
+        echo "Running <%= app[:name] %>"
+        docker run  -d <%= app[:docker_options].join(' ') %> --name <%= app[:name] %> <%= app[:repository]%>
       }
-      function stop_elasticsearch() {
-        /usr/bin/docker kill elasticsearch
-        /usr/bin/docker rm elasticsearch
+      function kill_<%= app[:name] %>() {
+        /usr/bin/docker kill <%= app[:name] %>
+        /usr/bin/docker rm <%= app[:name] %>
       }
-      function elasticsearch() {
-        /usr/bin/docker exec -it elasticsearch bash
+      function build_<%= app[:name] %>() {
+        docker build -t <%= app[:repository] %> <%=app[:dockerfile] %>
       }
-      function start_logstash() {
-        eval `cat /etc/environment | sed "s/^/export /"`
-        /usr/bin/docker run  -d  -p 514:514 -p 514:514/udp -e PUBLISH=514 \
-          -e HOST=$COREOS_PRIVATE_IPV4 --name logstash paulczar/logstash_confd
+      function <%= app[:name] %>() {
+        /usr/bin/docker exec -it <%= app[:name] %> bash
       }
-      function stop_logstash() {
-        /usr/bin/docker kill logstash
-        /usr/bin/docker rm logstash
-      }
-      function logstash() {
-        /usr/bin/docker exec -it elasticsearch bash
-      }
-      function start_kibana() {
-        eval `cat /etc/environment | sed "s/^/export /"`
-        /usr/bin/docker run  -d  -p 5601:5601 -e PUBLISH=5601 \
-          -e HOST=$COREOS_PRIVATE_IPV4 --name kibana paulczar/kibana_confd
-      }
-      function stop_kibana() {
-        /usr/bin/docker kill kibana
-        /usr/bin/docker rm kibana
-      }
-      function kibana() {
-        /usr/bin/docker exec -it kibana bash
-      }
+<% end %>
       function cleanup() {
         etcdctl rm --recursive /services
       }

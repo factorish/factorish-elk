@@ -5,6 +5,7 @@ owner = "root"
 group = "root"
 mode  = "0755"
 keys = [
-  "/services/logstash/config",
+  "/logstash/config",
+  "/elasticsearch_api"
 ]
 check_cmd = "/app/bin/check {{ .src }}"

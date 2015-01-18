@@ -1,9 +1,9 @@
-# This file creates a container that runs Elasticsearch
+# This file creates a container that runs Logstash
 #
 # Author: Paul Czarkowski
 # Date: 08/16/2014
 
-FROM paulczar/java_confd
+FROM factorish/factorish-java
 MAINTAINER Paul Czarkowski "paul@paulcz.net"
 
 ENV LOGSTASH logstash-1.5.0.beta1

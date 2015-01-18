@@ -25,15 +25,15 @@ export PROTO=${PROTO:-tcp}
 
 export ETCD_HOST=${ETCD_HOST:-$HOST}
 export ETCD_PORT=${ETCD_PORT:-4001}
-export ETCD="$ETCD_HOST:$ETCD_PORT"
+export ETCD=${ETCD:-"$ETCD_HOST:$ETCD_PORT"}
 export ETCD_PATH=${ETCD_PATH:-"/services/elasticsearch"}
-export ETCD_TTL=${ETCD_TTL:-10}
+export ETCD_TTL=${ETCD_TTL:-30}
 export ETCD_OPTIONS="--no-sync -C $ETCD"
 
 [[ -z ${ETCD_HOST} ]] && echo HOST or ETCD_HOST must be set && exit 1
 
 # Your App
-CLUSTER_NAME=${CLUSTER_NAME:-"elasticsearch"}
+export CLUSTER_NAME=${CLUSTER_NAME:-"elasticsearch"}
 export ES_HEAP_SIZE=${ES_HEAP_SIZE:-'512m'}
 
 if [[ -z $HOST ]]; then
@@ -47,7 +47,6 @@ fi
 configure_etcd
 
 etcd_make_directory config
-etcd_make_directory hosts
 
 etcd_set_default config/clustername ${CLUSTER_NAME}
 

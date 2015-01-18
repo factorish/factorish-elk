@@ -5,7 +5,8 @@ owner = "root"
 group = "root"
 mode  = "0755"
 keys = [
-  "/services/elasticsearch/config",
-  "/services/elasticsearch/hosts",
+  "/elasticsearch/config",
+  "/elasticsearch_api",
+  "/elasticsearch_transport",
 ]
 check_cmd = "/app/bin/check {{ .src }}"

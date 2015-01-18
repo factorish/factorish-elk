@@ -3,7 +3,7 @@
 # Author: Paul Czarkowski
 # Date: 08/16/2014
 
-FROM paulczar/java_confd
+FROM factorish/factorish-java
 MAINTAINER Paul Czarkowski "paul@paulcz.net"
 
 RUN \
