@@ -1,0 +1,17 @@
+[Unit]
+Description=Elasticsearch Data Container
+After=registrator@%i.service
+Requires=registrator@%i.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/usr/bin/docker pull factorish/elasticsearch
+ExecStart=/bin/sh -c "docker inspect elasticsearch-data-%i >/dev/null 2>&1 || docker run --name elasticsearch-data-%i -v /data factorish/elasticsearch true"
+ExecStop=/usr/bin/docker stop elasticsearch-data-%i
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+Conflicts=elasticsearch-data@*.service

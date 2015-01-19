@@ -75,8 +75,8 @@ $ docker run  -d -p 5601:5601 -e SERVICE_514_NAME=kibana_http \
 Testing / Development
 =====================
 
-Vagrant
--------
+Development
+-----------
 
 There is a comprehensive `Vagrantfile` that will spin up 3 CoreOS nodes, build, and then run the ELK images.
 
@@ -88,8 +88,31 @@ Vagrant will also expose the ports for the services.
 
 ```
 $ vagrant up
-...
-...
+```
+
+Testing
+-------
+
+### Testing
+
+This will spin up vagrant without provisioning and will then allow you to use `fleet` to schedule and run the necessary containers.
+
+```
+$ mode=test vagrant up --no-provision
+$ vagrant ssh core-01
+$ fleetctl submit share/fleet/systemd/*.service \
+  && fleetctl start registrator@1 registrator@2 registrator@3 \
+  && fleetctl start cadvisor@1 cadvisor@2 cadvisor@3 \
+  && fleetctl start elasticsearch-data@1 elasticsearch-data@2 elasticsearch-data@3 \
+  && fleetctl start elasticsearch@1 && sleep 60 \
+  && fleetctl start elasticsearch@2 elasticsearch@3 \
+  && fleetctl start logstash@1 logstash@2 logstash@3 \
+  && fleetctl start kibana@1 kibana@2 kibana@3 \
+  && fleetctl start logspout@1 logspout@2 logspout@3 \
+
+```
+
+```
 $ curl http://localhost:9200/_cluster/health?pretty=true
 {
   "cluster_name" : "elasticsearch",

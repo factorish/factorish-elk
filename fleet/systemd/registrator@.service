@@ -1,0 +1,16 @@
+[Unit]
+Description=Registrator Service Discovery
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/environment
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill registrator
+ExecStartPre=-/usr/bin/docker rm registrator
+ExecStartPre=/usr/bin/docker pull 10.0.2.2:5000/progrium/registrator
+ExecStart=/usr/bin/docker run --rm --name registrator-%i -v /var/run/docker.sock:/tmp/docker.sock:ro -h %H progrium/registrator -ttl 30 -ttl-refresh 20 -ip ${COREOS_PRIVATE_IPV4} etcd://${COREOS_PRIVATE_IPV4}:4001/services
+ExecStop=/usr/bin/docker stop registrator
+
+[X-Fleet]
+Conflicts=registrator@*.service

@@ -1,0 +1,21 @@
+[Unit]
+Description=ElasticSearch
+After=elasticsearch-data@%i.service
+Requires=elasticsearch-data@%i.service
+
+[Service]
+EnvironmentFile=/etc/environment
+TimeoutStartSec=2m
+ExecStartPre=-/usr/bin/docker kill elasticsearch-%i
+ExecStartPre=-/usr/bin/docker rm elasticsearch-%i
+ExecStartPre=/usr/bin/docker pull factorish/elasticsearch
+ExecStart=/usr/bin/docker run --name elasticsearch-%i -e HOST=$COREOS_PRIVATE_IPV4 \
+  -p 9200:9200 -e SERVICE_9200_NAME=elasticsearch_api \
+  -p 9300:9300 -e SERVICE_9300_NAME=elasticsearch_transport \
+  --volumes-from elasticsearch@%i-data \
+  factorish/logstash
+ExecStop=/usr/bin/docker stop elasticsearch-%i
+
+[X-Fleet]
+Conflicts=elasticsearch@*.service
+X-ConditionMachineOf=elasticsearch-data@%i.service

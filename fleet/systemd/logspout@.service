@@ -1,0 +1,16 @@
+[Unit]
+Description=Logspout logging service
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/environment
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill logspout
+ExecStartPre=-/usr/bin/docker rm logspout
+ExecStartPre=/usr/bin/docker pull 10.0.2.2:5000/progrium/logspout
+ExecStart=/usr/bin/docker run --rm --name logspout-%i -v /var/run/docker.sock:/tmp/docker.sock:ro '--publish=8081:8000' progrium/logspout
+ExecStop=/usr/bin/docker stop logspout
+
+[X-Fleet]
+Conflicts=logspout@*.service
