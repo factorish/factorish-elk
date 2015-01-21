@@ -8,13 +8,15 @@ This project is a attempt to showcase using [Factorish](http://github.com/factor
 
 ![Kibana Screenshot](docs/kibana.png)
 
-To spin up a three node system each running the whole ELK stack simply run:
+To spin up a three node system suitable for Development each running the whole ELK stack simply run:
 
 ```
 $ vagrant up
 ```
 
 See the [vagrant](https://github.com/factorish/factorish-elk#vagrant) section in [Testing / Development](https://github.com/factorish/factorish-elk#testing--development) for more details.
+
+To build something that looks more like production you can use the prebuilt images from the [Docker Hub](https://registry.hub.docker.com/repos/factorish/) and the included fleet units found in `./fleet`.  See the Testing section in [Testing / Development](https://github.com/factorish/factorish-elk#testing--development) for a list of fleet commands to stand up an ELK stack via fleet.
 
 Framework
 =========
