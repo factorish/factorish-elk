@@ -1,7 +1,5 @@
 [Unit]
 Description=Logstash log router
-After=elasticsearch@%i.service
-Requires=elasticsearch@%i.service
 
 [Service]
 EnvironmentFile=/etc/environment
