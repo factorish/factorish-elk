@@ -103,11 +103,10 @@ $ vagrant ssh core-01
 $ fleetctl submit share/fleet/systemd/*.service \
   && fleetctl start registrator cadvisor \
   && fleetctl start elasticsearch-data@1 elasticsearch-data@2 elasticsearch-data@3 \
-  && fleetctl start elasticsearch@1 && sleep 60 \
-  && fleetctl start elasticsearch@2 elasticsearch@3 \
+  && fleetctl start elasticsearch@1 elasticsearch@2 elasticsearch@3 \
   && fleetctl start logstash@1 logstash@2 logstash@3 \
   && fleetctl start kibana@1 kibana@2 kibana@3 \
-  && fleetctl start logspout@1 logspout@2 logspout@3 \
+  && fleetctl start logspout
 
 ```
 

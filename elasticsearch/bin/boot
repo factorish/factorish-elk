@@ -48,7 +48,7 @@ fi
 # If ID is passed, use it to give 1 a chance to boot first.
 if [[ $ID > 1 ]]; then
   sleep 60
-if
+fi
 
 configure_etcd
 
