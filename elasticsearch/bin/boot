@@ -35,6 +35,7 @@ export ETCD_OPTIONS="--no-sync -C $ETCD"
 # Your App
 export CLUSTER_NAME=${CLUSTER_NAME:-"elasticsearch"}
 export ES_HEAP_SIZE=${ES_HEAP_SIZE:-'512m'}
+export ID=${ID:-0}
 
 if [[ -z $HOST ]]; then
   echo '==> $HOST not set.  booting ${APP_NAME} without etcd support.'
@@ -43,6 +44,11 @@ if [[ -z $HOST ]]; then
   echo "==> ${APP_NAME} running..."
   exit $?
 fi
+
+# If ID is passed, use it to give 1 a chance to boot first.
+if [[ $ID > 1 ]]; then
+  sleep 60
+if
 
 configure_etcd
 

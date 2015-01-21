@@ -1,7 +1,7 @@
 [Unit]
 Description=kibana ELK web frontend
-After=logstash@%i.service
-Requires=logstash@%i.service
+After=elasticsearch@%i.service
+Requires=elasticsearch@%i.service
 
 [Service]
 EnvironmentFile=/etc/environment
