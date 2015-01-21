@@ -1,5 +1,5 @@
 [Unit]
-Description=Logspout logging service
+Description=kibana ELK web frontend
 After=logstash@%i.service
 Requires=logstash@%i.service
 
@@ -9,10 +9,10 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill kibana-%1
 ExecStartPre=-/usr/bin/docker rm kibana-%1
 ExecStartPre=/usr/bin/docker pull factorish/kibana
-ExecStart=/usr/bin/docker run --rm --name kibana-%i \
+ExecStart=/bin/sh -c "/usr/bin/docker run --rm --name kibana-%i \
   -p 5601:5601 -e SERVICE_514_NAME=kibana_http \
   -e HOST=$COREOS_PRIVATE_IPV4 \
-  factorish/kibana
+  factorish/kibana"
 ExecStop=/usr/bin/docker stop kibana-%1
 
 [X-Fleet]

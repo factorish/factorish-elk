@@ -1,5 +1,5 @@
 [Unit]
-Description=Logspout logging service
+Description=Logstash log router
 After=elasticsearch@%i.service
 Requires=elasticsearch@%i.service
 
@@ -9,10 +9,10 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill logstash-%1
 ExecStartPre=-/usr/bin/docker rm logstash-%1
 ExecStartPre=/usr/bin/docker pull factorish/logstash
-ExecStart=/usr/bin/docker run --rm --name logstash-%i \
+ExecStart=/bin/sh -c "/usr/bin/docker run --rm --name logstash-%i \
   -p 514:514/udp -e SERVICE_514_NAME=logstash_syslog \
   -e HOST=$COREOS_PRIVATE_IPV4 \
-  factorish/logstash
+  factorish/logstash"
 ExecStop=/usr/bin/docker stop logstash-%1
 
 [X-Fleet]

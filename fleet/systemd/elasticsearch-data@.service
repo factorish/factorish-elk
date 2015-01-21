@@ -1,7 +1,7 @@
 [Unit]
 Description=Elasticsearch Data Container
-After=registrator@%i.service
-Requires=registrator@%i.service
+After=registrator.service
+Requires=registrator.service
 
 [Service]
 Type=oneshot

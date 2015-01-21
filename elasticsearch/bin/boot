@@ -46,10 +46,11 @@ fi
 
 configure_etcd
 
-etcd_make_directory config
+# whoever makes the initial config etcd dir gets to be primary node for initial election
+etcd_make_directory config && \
+  etcdctl $ETCD_OPTIONS set $ETCD_PATH/config/primary ${HOSTNAME} --ttl 300 > /dev/null
 
 etcd_set_default config/clustername ${CLUSTER_NAME}
-
 
 # wait for confd to run once and install initial templates
 until confd -onetime -node $ETCD -config-file /app/confd.toml -confdir /app; do
