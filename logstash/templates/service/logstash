@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+
+exec /opt/logstash/bin/logstash -f /opt/logstash/conf.d

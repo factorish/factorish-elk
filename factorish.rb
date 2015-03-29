@@ -65,7 +65,7 @@ end
     name: "elasticsearch",
     repository: "factorish/elasticsearch",
     docker_options: [
-      "-e HOST=$COREOS_PRIVATE_IPV4",
+      "-e ETCD_HOST=$COREOS_PRIVATE_IPV4",
       "-p 9200:9200 -e SERVICE_9200_NAME=elasticsearch_api",
       "-p 9300:9300 -e SERVICE_9300_NAME=elasticsearch_transport"
     ],
@@ -77,7 +77,7 @@ end
     repository: "factorish/logstash",
     docker_options: [
       "-p 514:514/udp -e SERVICE_514_NAME=logstash_syslog",
-      "-e HOST=$COREOS_PRIVATE_IPV4"
+      "-e ETCD_HOST=$COREOS_PRIVATE_IPV4"
     ],
     dockerfile: "/home/core/share/logstash",
     command: ""
@@ -87,7 +87,7 @@ end
     repository: "factorish/kibana",
     docker_options: [
       "-p 5601:5601 -e SERVICE_514_NAME=kibana_http",
-      "-e HOST=$COREOS_PRIVATE_IPV4"
+      "-e ETCD_HOST=$COREOS_PRIVATE_IPV4"
     ],
     dockerfile: "/home/core/share/kibana",
     command: ""

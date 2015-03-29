@@ -7,6 +7,6 @@ mode  = "0755"
 keys = [
   "/elasticsearch/config",
   "/elasticsearch_api",
-  "/elasticsearch_transport",
+  "/elasticsearch_transport"
 ]
 check_cmd = "/app/bin/check {{ .src }}"

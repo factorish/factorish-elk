@@ -23,45 +23,54 @@ export PUBLISH=${PUBLISH:-9200}
 export PORT=${PORT:-9200}
 export PROTO=${PROTO:-tcp}
 
-export ETCD_HOST=${ETCD_HOST:-$HOST}
-export ETCD_PORT=${ETCD_PORT:-4001}
-export ETCD=${ETCD:-"$ETCD_HOST:$ETCD_PORT"}
-export ETCD_PATH=${ETCD_PATH:-"/services/elasticsearch"}
-export ETCD_TTL=${ETCD_TTL:-30}
-export ETCD_OPTIONS="--no-sync -C $ETCD"
-
-[[ -z ${ETCD_HOST} ]] && echo HOST or ETCD_HOST must be set && exit 1
-
 # Your App
 export CLUSTER_NAME=${CLUSTER_NAME:-"elasticsearch"}
 export ES_HEAP_SIZE=${ES_HEAP_SIZE:-'512m'}
 export ID=${ID:-0}
 
-if [[ -z $HOST ]]; then
-  echo '==> $HOST not set.  booting ${APP_NAME} without etcd support.'
-  # COMMAND TO RUN YOUR APP GOES HERE
-  /opt/elasticsearch-1.4.2/bin/elasticsearch -p /app/elasticsearch.pid
-  echo "==> ${APP_NAME} running..."
-  exit $?
+if [[ -n $ETCD_HOST ]]; then
+  echo "==> ETCD_HOST set.  starting ${APP_NAME} etcd support."
+  export ETCD_PORT=${ETCD_PORT:-4001}
+  export ETCD="$ETCD_HOST:$ETCD_PORT"
+  export ETCD_PATH=${ETCD_PATH:-"/services/$APP_NAME"}
+  export ETCD_TTL=${ETCD_TTL:-10}
+  export ETCD_OPTIONS="--no-sync -C $ETCD"
+  export CONFD_OPTIONS="-node $ETCD -config-file /app/confd_etcd.toml"
+  export SLEEP_TIME=$(($ETCD_TTL/2))
+  configure_etcd
+  mv /app/conf.d/optional/service-confd.toml /app/conf.d/service-confd.toml
+
+# whoever makes the initial config etcd dir gets to be primary node for initial election
+  etcd_make_directory config && \
+    etcdctl $ETCD_OPTIONS set $ETCD_PATH/config/primary ${HOSTNAME} --ttl 300 > /dev/null
+
+  etcd_set_default config/clustername ${CLUSTER_NAME}
+
+else
+  echo "==> ETCD_HOST not set.  starting ${APP_NAME} without etcd support."
+  export CONFD_OPTIONS="-config-file /app/confd_env.toml"
+  export SLEEP_TIME=10
+  # App specific equiv to etcd /services/example/text
 fi
+
+# make service directories based on service templates
+for service in $(ls /app/templates/service/); do
+  if [[ ${service} == "confd" && -z ${ETCD_HOST} ]]; then
+    echo "skipping confd service"
+  else
+    mkdir -p /etc/service/$service
+  fi
+done
 
 # If ID is passed, use it to give 1 a chance to boot first.
 if [[ $ID > 1 ]]; then
   sleep 60
 fi
 
-configure_etcd
-
-# whoever makes the initial config etcd dir gets to be primary node for initial election
-etcd_make_directory config && \
-  etcdctl $ETCD_OPTIONS set $ETCD_PATH/config/primary ${HOSTNAME} --ttl 300 > /dev/null
-
-etcd_set_default config/clustername ${CLUSTER_NAME}
-
 # wait for confd to run once and install initial templates
-until confd -onetime -node $ETCD -config-file /app/confd.toml -confdir /app; do
+until confd -onetime $CONFD_OPTIONS; do
   echo "echo ==> ${APP_NAME}: waiting for confd to write initial templates..."
-  sleep $(($ETCD_TTL/2))  # sleep for half the TTL
+  sleep $SLEEP_TIME
 done
 
 echo Starting ${APP_NAME}
@@ -69,6 +78,6 @@ echo Starting ${APP_NAME}
 # smart shutdown on SIGINT and SIGTERM
 trap on_exit INT TERM
 
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+exec /usr/bin/runsvdir -P /etc/service
 
 exit 1

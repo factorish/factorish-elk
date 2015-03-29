@@ -1,5 +1,0 @@
-confdir  = "/app"
-interval = 5
-prefix   = "/services"
-quiet    = false
-watch    = true

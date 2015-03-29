@@ -14,10 +14,6 @@ DIR=$(dirname $0)
 # smart shutdown on SIGINT and SIGTERM
 trap on_exit INT TERM
 
-# spawn confd in the background to update services based on etcd changes
-confd -node $ETCD -config-file /app/confd.toml -confdir /app &
-CONFD_PID=$!
-
 # publish the service to etcd using the injected HOST and PORT
 if [[ ! -z $PUBLISH ]]; then
   set +e

@@ -1,8 +1,9 @@
 [template]
-src   = "supervisord.conf"
-dest  = "/etc/supervisor/supervisord.conf"
+src   = "service/kibana"
+dest  = "/etc/service/kibana/run"
 owner = "root"
 group = "root"
 mode  = "0755"
-
+keys = [
+]
 check_cmd = "/app/bin/check {{ .src }}"
