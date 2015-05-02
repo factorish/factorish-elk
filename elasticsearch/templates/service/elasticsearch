@@ -1,4 +1,4 @@
 #!/bin/sh
 set -e
 
-exec /opt/elasticsearch-1.4.2/bin/elasticsearch
+exec /opt/elasticsearch/bin/elasticsearch

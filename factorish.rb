@@ -66,6 +66,7 @@ end
     repository: "factorish/elasticsearch",
     docker_options: [
       "-e ETCD_HOST=$COREOS_PRIVATE_IPV4",
+      "-e HOST=$COREOS_PRIVATE_IPV4",
       "-p 9200:9200 -e SERVICE_9200_NAME=elasticsearch_api",
       "-p 9300:9300 -e SERVICE_9300_NAME=elasticsearch_transport"
     ],
